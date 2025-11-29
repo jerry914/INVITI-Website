@@ -8,6 +8,7 @@ import { WireframeButton } from '../wireframe/WireframeButton';
 import { getBlogPostById, getAllBlogPosts, getMarkdownContent } from '../../utils/blogData';
 import { parseMarkdown } from '../../utils/markdownParser';
 import { useIsMobile } from '../ui/use-mobile';
+import { removeBasePath } from '../../utils/routing';
 
 interface BlogPostPageProps {
   locale?: Locale;
@@ -47,13 +48,8 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
 
   // Get post ID from URL - update when URL changes
   const [postId, setPostId] = useState(() => {
-    const path = window.location.pathname;
-    // Remove base path if exists
-    const basePath = '/INVITI-Website';
-    const normalizedPath = path.startsWith(basePath) 
-      ? path.slice(basePath.length) 
-      : path;
-    const match = normalizedPath.match(/\/blog\/(.+)/);
+    const path = removeBasePath(window.location.pathname);
+    const match = path.match(/\/blog\/(.+)/);
     if (!match) return '';
     
     // Decode the ID from URL
@@ -68,12 +64,8 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
   // Listen for URL changes
   useEffect(() => {
     const updatePostId = () => {
-      const path = window.location.pathname;
-      const basePath = '/INVITI-Website';
-      const normalizedPath = path.startsWith(basePath) 
-        ? path.slice(basePath.length) 
-        : path;
-      const match = normalizedPath.match(/\/blog\/(.+)/);
+      const path = removeBasePath(window.location.pathname);
+      const match = path.match(/\/blog\/(.+)/);
       if (!match) {
         setPostId('');
         return;

@@ -23,6 +23,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
 import { Monitor, Tablet, Smartphone } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 import { Locale, getTranslations } from './locales/translations';
+import { addBasePath, removeBasePath, getCurrentPath } from './utils/routing';
 
 type FeatureId = FeatureContentId;
 type ViewType =
@@ -183,7 +184,8 @@ const initialRenderRef = useRef(true);
   };
 
   const resolveRoute = useCallback((path: string) => {
-    const normalizedPath = path || '/';
+    // Remove base path to get the actual route
+    const normalizedPath = removeBasePath(path || '/');
     let nextView: ViewType = 'wireframe';
     let feature: FeatureId | null = null;
 
@@ -222,12 +224,14 @@ const initialRenderRef = useRef(true);
   const handleNavigate = useCallback(
     (path: string, options: { replace?: boolean } = {}) => {
       const normalizedPath = path || '/';
+      // Add base path for GitHub Pages deployment
+      const fullPath = addBasePath(normalizedPath);
       if (options.replace) {
-        window.history.replaceState(null, '', normalizedPath);
+        window.history.replaceState(null, '', fullPath);
       } else {
-        window.history.pushState(null, '', normalizedPath);
+        window.history.pushState(null, '', fullPath);
       }
-      resolveRoute(normalizedPath);
+      resolveRoute(fullPath);
     },
     [resolveRoute]
   );
@@ -371,8 +375,8 @@ useEffect(() => {
 }, [locale]);
 
 useEffect(() => {
-  resolveRoute(window.location.pathname || '/');
-  const handlePop = () => resolveRoute(window.location.pathname || '/');
+  resolveRoute(getCurrentPath() || '/');
+  const handlePop = () => resolveRoute(getCurrentPath() || '/');
   window.addEventListener('popstate', handlePop);
   return () => window.removeEventListener('popstate', handlePop);
 }, [resolveRoute]);

@@ -7,6 +7,7 @@ import { getInstructionById, getAllInstructions, getInstructionContent } from '.
 import { parseMarkdown } from '../../utils/markdownParser';
 import { useIsMobile } from '../ui/use-mobile';
 import { HCSidebar } from './HCSidebar';
+import { removeBasePath } from '../../utils/routing';
 
 // Import all instruction images using Vite's glob
 // @ts-ignore
@@ -40,12 +41,8 @@ export const InstructionPostPage: React.FC<InstructionPostPageProps> = ({
 
   // Get instruction ID and anchor from URL
   const [instructionId, setInstructionId] = useState(() => {
-    const path = window.location.pathname;
-    const basePath = '/INVITI-Website';
-    const normalizedPath = path.startsWith(basePath) 
-      ? path.slice(basePath.length) 
-      : path;
-    const match = normalizedPath.match(/\/instruction\/(.+)/);
+    const path = removeBasePath(window.location.pathname);
+    const match = path.match(/\/instruction\/(.+)/);
     if (!match) return '';
     
     const rawId = match[1];
@@ -63,12 +60,8 @@ export const InstructionPostPage: React.FC<InstructionPostPageProps> = ({
   // Listen for URL changes
   useEffect(() => {
     const updateInstructionId = () => {
-      const path = window.location.pathname;
-      const basePath = '/INVITI-Website';
-      const normalizedPath = path.startsWith(basePath) 
-        ? path.slice(basePath.length) 
-        : path;
-      const match = normalizedPath.match(/\/instruction\/(.+)/);
+      const path = removeBasePath(window.location.pathname);
+      const match = path.match(/\/instruction\/(.+)/);
       if (!match) {
         setInstructionId('');
         return;
