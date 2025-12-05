@@ -1,29 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HCSidebarItem } from './HCSidebarItem';
 import { Locale, getTranslations } from '../../locales/translations';
-import { ChevronDown, Menu } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { getAllInstructions } from '../../utils/instructionData';
+import { Heading } from '../../utils/markdownParser';
 
 interface HCSidebarProps {
   locale?: Locale;
   isMobile?: boolean;
   onNavigate?: (path: string) => void;
   currentInstructionId?: string;
+  headings?: Heading[];
 }
 
 export const HCSidebar: React.FC<HCSidebarProps> = ({ 
   locale = 'tc',
   isMobile = false,
   onNavigate,
-  currentInstructionId
+  currentInstructionId,
+  headings
 }) => {
   const t = getTranslations(locale);
   const [isOpen, setIsOpen] = useState(false);
+  const [activeHeading, setActiveHeading] = useState<string>('');
+
+  // Track active heading based on scroll position
+  useEffect(() => {
+    if (!headings || headings.length === 0) return;
+
+    const handleScroll = () => {
+      const navHeight = 64;
+      const backButtonSectionHeight = isMobile ? 48 : 72; // py-3 (24px) + button on mobile, py-6 (48px) + button on desktop
+      const totalOffset = navHeight + backButtonSectionHeight;
+      const scrollOffset = window.pageYOffset + totalOffset + 100; // 100px offset for better UX
+
+      // Find the heading that's currently in view
+      let currentHeading = '';
+      for (let i = headings.length - 1; i >= 0; i--) {
+        const heading = headings[i];
+        const element = document.getElementById(heading.id) || 
+                       document.querySelector(`[data-anchor="${heading.id}"]`);
+        if (element) {
+          const elementTop = element.getBoundingClientRect().top + window.pageYOffset;
+          if (elementTop <= scrollOffset) {
+            currentHeading = heading.id;
+            break;
+          }
+        }
+      }
+
+      if (currentHeading && currentHeading !== activeHeading) {
+        setActiveHeading(currentHeading);
+      }
+    };
+
+    // Initial check
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [headings, isMobile, activeHeading]);
 
 
   const handleCategoryClick = (id: string) => {
     if (!onNavigate) return;
     onNavigate(`/instruction/${encodeURIComponent(id)}`);
+  };
+
+  const handleHeadingClick = (headingId: string) => {
+    setActiveHeading(headingId);
+    // Scroll to the heading element
+    setTimeout(() => {
+      const element = document.getElementById(headingId) || 
+                     document.querySelector(`[data-anchor="${headingId}"]`);
+      if (element) {
+        const navHeight = 64;
+        const backButtonSectionHeight = isMobile ? 48 : 72; // py-3 (24px) + button on mobile, py-6 (48px) + button on desktop
+        const totalOffset = navHeight + backButtonSectionHeight;
+        
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - totalOffset - 20;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
+    
+    if (isMobile) {
+      setIsOpen(false);
+    }
   };
 
   // Get all instructions and create categories
@@ -66,57 +133,112 @@ export const HCSidebar: React.FC<HCSidebarProps> = ({
     })
     .filter((cat): cat is NonNullable<typeof cat> => cat !== null);
 
+  // Check if we're on a page with headings
+  const hasHeadingsForCurrentPage = !!(headings && headings.length > 0 && currentInstructionId);
+
   if (isMobile) {
     return (
-      <div className="w-full border-b border-gray-200 bg-white">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center justify-between px-6 py-4 text-left"
-        >
-          <div className="flex items-center gap-2">
-            <Menu size={20} className="text-gray-700" />
-            <span className="text-gray-900 leading-[140%]">操作說明</span>
-          </div>
-          <ChevronDown 
-            size={20} 
-            className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
-          />
-        </button>
+      <div className="w-full bg-white">
+        <div className="px-4 pt-2 pb-4">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex items-center justify-between w-full p-3 border border-gray-200 bg-white rounded-md"
+            style={{ borderRadius: '8px' }}
+          >
+            <span className="text-sm font-medium text-gray-900">操作說明</span>
+            <ChevronDown 
+              size={16} 
+              className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+            />
+          </button>
+        </div>
         
         {isOpen && (
-          <div className="px-6 pb-4 space-y-1 border-t border-gray-100">
-            {categories.map((category, index) => (
-              <HCSidebarItem
-                key={index}
-                label={category.label}
-                hasChildren={category.hasChildren}
-                isActive={currentInstructionId === category.id}
-                onClick={() => handleCategoryClick(category.id)}
-              />
-            ))}
+          <div className="px-4 pb-4">
+            <div className="p-3 border border-gray-200 bg-white rounded-md">
+              <div className="space-y-1">
+                {categories.map((category, index) => {
+                  const isActiveCategory = currentInstructionId === category.id;
+                  const showHeadings = isActiveCategory && hasHeadingsForCurrentPage;
+                  
+                  return (
+                    <HCSidebarItem
+                      key={index}
+                      label={category.label}
+                      hasChildren={showHeadings}
+                      isActive={isActiveCategory && !hasHeadingsForCurrentPage}
+                      defaultExpanded={showHeadings}
+                      onClick={() => handleCategoryClick(category.id)}
+                    >
+                      {showHeadings && headings && headings.map((heading, hIndex) => (
+                        <HCSidebarItem
+                          key={hIndex}
+                          label={heading.text}
+                          hasChildren={false}
+                          isActive={activeHeading === heading.id}
+                          onClick={() => handleHeadingClick(heading.id)}
+                        />
+                      ))}
+                    </HCSidebarItem>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
       </div>
     );
   }
 
+  // Determine if we're on an instruction post page (has headings) or help center page
+  const isInstructionPostPage = !!(headings && headings.length > 0);
+  
+  // Calculate top offset for fixed sidebar (only on instruction post page)
+  // Only consider: navigation menu (64px) + back button section (py-6 = 48px + button ~24px = ~72px)
+  const navHeight = 64;
+  const backButtonSectionHeight = 72; // py-6 (48px) + button height (~24px)
+  const topOffset = navHeight + backButtonSectionHeight + 40;
+
   return (
     <aside className="w-60 flex-shrink-0">
-      <div className="sticky top-6 space-y-1">
+      <div 
+        className={isInstructionPostPage ? "fixed space-y-1 overflow-y-auto" : "sticky top-6 space-y-1"}
+        style={isInstructionPostPage ? { 
+          width: '240px',
+          top: `${topOffset}px`,
+          maxHeight: `calc(100vh - ${topOffset}px)`
+        } : undefined}
+      >
         <div className="mb-3 px-3">
           <h5 className="text-xs text-gray-500 uppercase tracking-wider leading-[140%]">
             操作說明
           </h5>
         </div>
-        {categories.map((category, index) => (
-          <HCSidebarItem
-            key={index}
-            label={category.label}
-            hasChildren={category.hasChildren}
-            isActive={currentInstructionId === category.id}
-            onClick={() => handleCategoryClick(category.id)}
-          />
-        ))}
+        {categories.map((category, index) => {
+          const isActiveCategory = currentInstructionId === category.id;
+          const showHeadings = isActiveCategory && hasHeadingsForCurrentPage;
+          
+          return (
+            <HCSidebarItem
+              key={index}
+              label={category.label}
+              hasChildren={showHeadings}
+              isActive={isActiveCategory && !hasHeadingsForCurrentPage}
+              defaultExpanded={showHeadings}
+              onClick={() => handleCategoryClick(category.id)}
+            >
+              {showHeadings && headings && headings.map((heading, hIndex) => (
+                <HCSidebarItem
+                  key={hIndex}
+                  label={heading.text}
+                  hasChildren={false}
+                  isActive={activeHeading === heading.id}
+                  onClick={() => handleHeadingClick(heading.id)}
+                />
+              ))}
+            </HCSidebarItem>
+          );
+        })}
       </div>
     </aside>
   );

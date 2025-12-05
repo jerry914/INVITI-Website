@@ -4,7 +4,7 @@ import { Locale, getTranslations } from '../../locales/translations';
 import { NavStack } from '../wireframe/NavStack';
 import { FooterSection } from '../wireframe/FooterSection';
 import { getInstructionById, getAllInstructions, getInstructionContent } from '../../utils/instructionData';
-import { parseMarkdown } from '../../utils/markdownParser';
+import { parseMarkdown, extractH2Headings } from '../../utils/markdownParser';
 import { useIsMobile } from '../ui/use-mobile';
 import { HCSidebar } from './HCSidebar';
 import { removeBasePath } from '../../utils/routing';
@@ -116,12 +116,11 @@ export const InstructionPostPage: React.FC<InstructionPostPageProps> = ({
                          document.querySelector(`[data-anchor="${hash}"]`);
           if (element) {
             const navHeight = 64;
-            const bannerHeight = isMobile ? 56 : 48;
-            const isBannerDismissed = localStorage.getItem('banner-dismissed') === 'true';
-            const totalNavHeight = isBannerDismissed ? navHeight : navHeight + bannerHeight;
+            const backButtonSectionHeight = isMobile ? 48 : 72; // py-3 (24px) + button on mobile, py-6 (48px) + button on desktop
+            const totalOffset = navHeight + backButtonSectionHeight;
             
             const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - totalNavHeight - 20;
+            const offsetPosition = elementPosition + window.pageYOffset - totalOffset - 20;
             
             window.scrollTo({
               top: offsetPosition,
@@ -146,6 +145,7 @@ export const InstructionPostPage: React.FC<InstructionPostPageProps> = ({
     if (!markdownContent) return null;
 
     const parsed = parseMarkdown(markdownContent);
+    const headings = extractH2Headings(markdownContent);
     
     // Fix image paths in the HTML content
     let content = parsed.content;
@@ -236,7 +236,8 @@ export const InstructionPostPage: React.FC<InstructionPostPageProps> = ({
     return {
       id: metadata.id,
       title: metadata.title,
-      content
+      content,
+      headings
     };
   }, [instructionId]);
 
@@ -296,23 +297,13 @@ export const InstructionPostPage: React.FC<InstructionPostPageProps> = ({
           <div className={`${isMobile ? '' : 'max-w-[1280px] mx-auto px-6'}`}>
             <div className={isMobile ? 'flex flex-col' : 'flex gap-12'}>
               {/* Sidebar Navigation */}
-              {!isMobile && (
-                <HCSidebar 
-                  locale={locale} 
-                  isMobile={isMobile}
-                  onNavigate={onNavigate}
-                  currentInstructionId={instructionId}
-                />
-              )}
-              
-              {isMobile && (
-                <HCSidebar 
-                  locale={locale} 
-                  isMobile={isMobile}
-                  onNavigate={onNavigate}
-                  currentInstructionId={instructionId}
-                />
-              )}
+              <HCSidebar 
+                locale={locale} 
+                isMobile={isMobile}
+                onNavigate={onNavigate}
+                currentInstructionId={instructionId}
+                headings={instructionData.headings}
+              />
 
               {/* Article Content */}
               <article className={`flex-1 ${isMobile ? 'px-4' : ''}`}>

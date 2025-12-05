@@ -3,7 +3,8 @@ import { Menu, X, Globe, ChevronDown } from 'lucide-react';
 import { WireframeButton } from './WireframeButton';
 import { LanguageDropdown } from './LanguageDropdown';
 import { Locale, localeOptions, getTranslations } from '../../locales/translations';
-import logo from '../../assets/logo_menu.webp';
+import invitiLogo from '../../assets/INVITI_Logo.webp';
+import inviti from '../../assets/INVITI.webp';
 
 interface WireframeNavProps {
   isMobile?: boolean;
@@ -111,7 +112,10 @@ export const WireframeNav: React.FC<WireframeNavProps> = ({
             onClick={handleHomeClick}
             className="btn btn-link text-dark p-0 border-0 opacity-hover"
           >
-            <img src={logo} alt="INVITI" style={{ height: '42px', width: 'auto' }} />
+            <div className="d-flex align-items-center gap-2">
+              <img src={invitiLogo} alt="INVITI Logo" style={{ height: '30px', width: 'auto', marginRight: '6px'}} />
+              <img src={inviti} alt="INVITI" style={{ height: '16px', width: 'auto' }} />
+            </div>
           </button>
 
           {!mobile && (

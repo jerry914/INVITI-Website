@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 
 interface HCSidebarItemProps {
@@ -7,6 +7,7 @@ interface HCSidebarItemProps {
   isActive?: boolean;
   onClick?: () => void;
   children?: React.ReactNode;
+  defaultExpanded?: boolean;
 }
 
 export const HCSidebarItem: React.FC<HCSidebarItemProps> = ({ 
@@ -14,9 +15,17 @@ export const HCSidebarItem: React.FC<HCSidebarItemProps> = ({
   hasChildren = false,
   isActive = false,
   onClick,
-  children
+  children,
+  defaultExpanded = false
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  // Update expanded state when defaultExpanded changes (e.g., when active category changes)
+  useEffect(() => {
+    if (defaultExpanded) {
+      setIsExpanded(true);
+    }
+  }, [defaultExpanded]);
 
   const handleClick = () => {
     if (hasChildren) {
@@ -35,7 +44,7 @@ export const HCSidebarItem: React.FC<HCSidebarItemProps> = ({
             : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
         }`}
       >
-        <span>{label}</span>
+        <span className="text-sm">{label}</span>
         {hasChildren && (
           <ChevronRight 
             size={16} 

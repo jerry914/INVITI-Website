@@ -34,15 +34,18 @@ export const BlogCard: React.FC<BlogCardProps> = ({
       style={{ borderRadius: '8px' }}
     >
       {/* Thumbnail */}
-      <div className="w-full overflow-hidden" style={{ borderRadius: '8px 8px 0 0' }}>
-        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-          <ImageWithFallback
-            src={thumbnail}
-            alt={title}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+      {thumbnail && (
+        <div className="w-full overflow-hidden" style={{ borderRadius: '8px 8px 0 0' }}>
+          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+            <ImageWithFallback
+              src={thumbnail}
+              alt={title}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              loading="lazy"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Content */}
       <div className="p-4 sm:p-4">
@@ -60,16 +63,16 @@ export const BlogCard: React.FC<BlogCardProps> = ({
         <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 pb-2 sm:pb-3 border-b border-gray-100">
           {author.avatar && (
             <div 
-              className="blog-card-avatar bg-gray-100"
-              style={{
-                backgroundImage: `url(${author.avatar})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
-              role="img"
-              aria-label={author.name}
-            />
+              className="blog-card-avatar bg-gray-100 flex items-center justify-center"
+              style={{ padding: '4px' }}
+            >
+              <ImageWithFallback
+                src={author.avatar}
+                alt={author.name}
+                className="w-full h-full object-contain"
+                loading="lazy"
+              />
+            </div>
           )}
           {!author.avatar && (
             <div className="blog-card-avatar bg-gray-200 flex items-center justify-center">

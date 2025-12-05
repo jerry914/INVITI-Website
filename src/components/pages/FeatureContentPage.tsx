@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import eventSessionImage from '../../assets/functions/活動管理.png.webp';
+import eventSessionGif from '../../assets/Feature/創建活動_Gif版.gif';
 import autoInviteImage from '../../assets/functions/一鍵邀請與追蹤出席狀況.png.webp';
 import guestDbImage from '../../assets/functions/貴賓資料庫.png.webp';
 import { Calendar, Mail, Database, ZoomIn } from 'lucide-react';
@@ -35,9 +35,19 @@ interface LocalizedFeaturePage {
 }
 
 const imageMap: Record<FeatureContentId, string> = {
-  'event-session-management': eventSessionImage,
+  'event-session-management': eventSessionGif,
   'automated-invitations': autoInviteImage,
   'guest-database': guestDbImage
+};
+
+// YouTube video ID for automated-invitations
+const youtubeVideoId = '4QObyx7sDhI';
+
+// Screenshot images for feature cards (matching FeaturesSection.tsx)
+const screenshotMap: Record<FeatureContentId, string> = {
+  'event-session-management': 'https://images.unsplash.com/photo-1575388902449-6bca946ad549?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxldmVudCUyMGRhc2hib2FyZCUyMGludGVyZmFjZXxlbnwxfHx8fDE3NjE4MTI4OTJ8MA&ixlib=rb-4.1.0&q=80&w=1080',
+  'automated-invitations': 'https://images.unsplash.com/photo-1584543515885-b8981dbf0b5d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbWFpbCUyMGF1dG9tYXRpb24lMjBzeXN0ZW18ZW58MXx8fHwxNzYxODEyODkzfDA&ixlib=rb-4.1.0&q=80&w=1080',
+  'guest-database': 'https://images.unsplash.com/photo-1740560051533-3acef26ace95?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYXRhYmFzZSUyMGNvbnRhY3RzJTIwbWFuYWdlbWVudHxlbnwxfHx8fDE3NjE4MTI4OTN8MA&ixlib=rb-4.1.0&q=80&w=1080'
 };
 
 function getLocalizedContent(
@@ -431,31 +441,47 @@ export const FeatureContentPage: React.FC<FeatureContentPageProps> = ({
 
         <div className="row g-4 mb-5">
           <div className="col-12 col-lg-6">
-            <div
-              className="bg-light border rounded overflow-hidden position-relative"
-              onMouseEnter={() => setIsImageHovering(true)}
-              onMouseLeave={() => setIsImageHovering(false)}
-            >
-              <img
-                src={imageMap[featureId]}
-                alt={content.title}
-                className="img-fluid w-100"
-                style={{ objectFit: 'cover' }}
-              />
-              {/* Hover zoom button */}
-              <button
-                type="button"
-                onClick={() => setIsLightboxOpen(true)}
-                className="btn btn-light btn-sm d-flex align-items-center gap-1 position-absolute"
-                style={{
-                  right: '0.75rem',
-                  bottom: '0.75rem',
-                  opacity: isImageHovering ? 1 : 0,
-                  transition: 'opacity 0.2s'
-                }}
-              >
-                <ZoomIn size={16} />
-              </button>
+            <div className="bg-light border rounded overflow-hidden position-relative">
+              {featureId === 'automated-invitations' ? (
+                // YouTube video embed
+                <div className="position-relative" style={{ paddingBottom: '56.25%', height: 0 }}>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${youtubeVideoId}`}
+                    title={content.title}
+                    className="position-absolute top-0 start-0 w-100 h-100"
+                    style={{ border: 0 }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                // Image/GIF with zoom button
+                <div
+                  onMouseEnter={() => setIsImageHovering(true)}
+                  onMouseLeave={() => setIsImageHovering(false)}
+                >
+                  <img
+                    src={imageMap[featureId]}
+                    alt={content.title}
+                    className="img-fluid w-100"
+                    style={{ objectFit: 'cover' }}
+                  />
+                  {/* Hover zoom button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsLightboxOpen(true)}
+                    className="btn btn-light btn-sm d-flex align-items-center gap-1 position-absolute"
+                    style={{
+                      right: '0.75rem',
+                      bottom: '0.75rem',
+                      opacity: isImageHovering ? 1 : 0,
+                      transition: 'opacity 0.2s'
+                    }}
+                  >
+                    <ZoomIn size={16} />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -504,7 +530,7 @@ export const FeatureContentPage: React.FC<FeatureContentPageProps> = ({
                   icon={feature.icon}
                   title={feature.title}
                   description={feature.description}
-                  screenshot={imageMap[feature.id]}
+                  screenshot={screenshotMap[feature.id]}
                   onClick={() =>
                     onNavigate?.(`/features/${feature.id}`)
                   }
@@ -516,8 +542,8 @@ export const FeatureContentPage: React.FC<FeatureContentPageProps> = ({
           </div>
         </div>
       </div>
-      {/* Intro image lightbox */}
-      {isLightboxOpen && (
+      {/* Intro image lightbox - only for images/GIFs, not videos */}
+      {isLightboxOpen && featureId !== 'automated-invitations' && (
         <ImageLightbox
           imageUrl={imageMap[featureId]}
           alt={content.title}

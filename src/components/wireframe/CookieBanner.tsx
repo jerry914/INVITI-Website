@@ -1,6 +1,7 @@
 import React from 'react';
 import { WireframeButton } from './WireframeButton';
 import { Locale, getTranslations } from '../../locales/translations';
+import { useIsMobile } from '../ui/use-mobile';
 
 interface CookieBannerProps {
   isMobile?: boolean;
@@ -12,7 +13,7 @@ interface CookieBannerProps {
 }
 
 export const CookieBanner: React.FC<CookieBannerProps> = ({
-  isMobile = false,
+  isMobile: isMobileProp = false,
   onAcceptAll,
   onRejectNonEssential,
   onManagePreferences,
@@ -20,27 +21,31 @@ export const CookieBanner: React.FC<CookieBannerProps> = ({
   locale = 'tc'
 }) => {
   const t = getTranslations(locale);
+  // Auto-detect mobile using hook, use detected value as primary source
+  // Prop can override if explicitly set to true (for forced mobile view in dev)
+  const detectedMobile = useIsMobile();
+  const isMobile = isMobileProp === true ? true : detectedMobile;
   
   return (
-    <div className="fixed-banner bg-white border-top shadow-sm">
-      <div className={isMobile ? 'container-fluid px-4 py-4' : 'container py-4'}>
-        <div className={`d-flex ${isMobile ? 'flex-column gap-3' : 'align-items-center justify-content-between gap-4'}`}>
-          <p className="mb-0 text-secondary">
+    <div className={`fixed-banner bg-white border-top shadow-sm ${isMobile ? 'px-4 py-4' : ''}`}>
+      <div className={isMobile ? 'w-full' : 'container py-4'}>
+        <div className={`${isMobile ? 'flex flex-col gap-3' : 'd-flex align-items-center justify-content-between gap-4'}`}>
+          <p className={`mb-0 text-secondary ${isMobile ? 'text-sm text-center' : ''}`}>
             {t.cookieBanner.message}{' '}
             <button
               onClick={onViewPolicy}
-              className="btn btn-link p-0 text-dark text-decoration-underline"
+              className={`btn btn-link p-0 text-dark text-decoration-underline ${isMobile ? 'text-sm' : ''}`}
             >
               {t.cookieBanner.cookiePolicy}
             </button>
           </p>
 
-          <div className={`d-flex ${isMobile ? 'flex-column' : 'align-items-center'} gap-2`}>
+          <div className={`${isMobile ? 'flex flex-col w-full gap-2' : 'd-flex align-items-center gap-2'}`}>
             <WireframeButton
               variant="primary"
               size="sm"
               onClick={onAcceptAll}
-              className={isMobile ? 'w-100' : ''}
+              className={isMobile ? 'w-full' : ''}
             >
               {t.cookieBanner.acceptAll}
             </WireframeButton>
@@ -48,7 +53,7 @@ export const CookieBanner: React.FC<CookieBannerProps> = ({
               variant="secondary"
               size="sm"
               onClick={onManagePreferences}
-              className={isMobile ? 'w-100' : ''}
+              className={isMobile ? 'w-full' : ''}
             >
               {t.cookieBanner.managePreferences}
             </WireframeButton>
@@ -56,7 +61,7 @@ export const CookieBanner: React.FC<CookieBannerProps> = ({
               variant="secondary"
               size="sm"
               onClick={onRejectNonEssential}
-              className={isMobile ? 'w-100' : ''}
+              className={isMobile ? 'w-full' : ''}
             >
               {t.cookieBanner.rejectNonEssential}
             </WireframeButton>

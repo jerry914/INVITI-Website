@@ -10,6 +10,14 @@ import { getAllBlogPosts, findMarkdownByTitle, getMarkdownContent } from '../../
 import { parseMarkdown } from '../../utils/markdownParser';
 import { useIsMobile } from '../ui/use-mobile';
 import deadImage from '../../assets/dead.webp';
+import invitLogo from '../../assets/INVITI_Logo.webp';
+import blog1 from '../../assets/Blog/img/blog1.jpeg.webp';
+import blog2 from '../../assets/Blog/img/blog2.jpeg.webp';
+import blog3 from '../../assets/Blog/img/blog3.jpeg.webp';
+import blog4 from '../../assets/Blog/img/blog4.jpeg.webp';
+import blog5 from '../../assets/Blog/img/blog5.jpeg.webp';
+import blog6 from '../../assets/Blog/img/blog6.jpeg.webp';
+import blog7 from '../../assets/Blog/img/blog7.jpeg.webp';
 
 interface BlogPageProps {
   locale?: Locale;
@@ -73,25 +81,20 @@ export const BlogPage: React.FC<BlogPageProps> = ({
     'events': '活動花絮',
   };
 
+  // Blog images array - mapped by sequence
+  const blogImages = [blog1, blog2, blog3, blog4, blog5, blog6, blog7];
+
   // Get blog posts from CSV and markdown files
   const allBlogPosts: BlogCardProps[] = useMemo(() => {
     const allPosts = getAllBlogPosts();
     
-    return allPosts.map((post) => {
+    return allPosts.map((post, index) => {
       // Get markdown content to extract excerpt
       const markdownContent = post.markdownPath ? getMarkdownContent(post.markdownPath) : '';
       const parsed = markdownContent ? parseMarkdown(markdownContent) : null;
       
-      // Default thumbnail (you can customize per post later)
-      const thumbnails = [
-        'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
-        'https://images.unsplash.com/photo-1519741497674-611481863552?w=800',
-        'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800',
-        'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800',
-        'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800',
-        'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800',
-      ];
-      const thumbnail = thumbnails[allPosts.indexOf(post) % thumbnails.length];
+      // Get thumbnail based on sequence (index)
+      const thumbnail = blogImages[index] || '';
       
       // Parse author name and role
       const authorName = post.author || 'INVITI 團隊';
@@ -107,14 +110,14 @@ export const BlogPage: React.FC<BlogPageProps> = ({
         author: {
           name: authorName,
           role: authorRole,
-          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100'
+          avatar: invitLogo
         },
         readTime: `${post.readTime} ${t.blogPage.readTime}`,
         // Store original CSV category for filtering
         originalCategory: post.category
       };
     });
-  }, [t, categoryMap]);
+  }, [t, categoryMap, blogImages]);
 
   // Filter blog posts based on active category
   const blogPosts: BlogCardProps[] = useMemo(() => {
@@ -211,7 +214,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                 {/* Collapsible Sidebar */}
                 <div className="px-4 mb-4">
                   <Collapsible open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full p-3 border border-gray-200 bg-white rounded-md">
+                    <CollapsibleTrigger className="flex items-center justify-between w-full p-3 border border-gray-200 bg-white rounded-md" style={{ borderRadius: '8px' }}>
                       <span className="text-sm font-medium text-gray-900">
                         {categories.find(c => c.id === activeCategory)?.label}
                       </span>

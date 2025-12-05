@@ -12,6 +12,12 @@ export interface ParsedMarkdown {
   excerpt: string;
 }
 
+export interface Heading {
+  id: string;
+  text: string;
+  level: number;
+}
+
 export function parseMarkdown(markdown: string): ParsedMarkdown {
   const lines = markdown.split('\n');
   const frontmatter: ParsedMarkdown['frontmatter'] = {};
@@ -161,66 +167,145 @@ function markdownToHTML(markdown: string): string {
   // Blockquotes
   html = html.replace(/^>\s+(.*$)/gim, '<blockquote>$1</blockquote>');
   
-  // Process lists line by line to handle them correctly
+  // Process lists line by line to handle them correctly with indentation support
   const lines = html.split('\n');
   const processedLines: string[] = [];
-  let inUnorderedList = false;
-  let inOrderedList = false;
+  
+  // Track list state at each indentation level
+  interface ListState {
+    type: 'ul' | 'ol' | null;
+    level: number;
+  }
+  const listStack: ListState[] = [];
+  let openLiTag: number | null = null; // Track if we have an open <li> tag and at what indent level
+  
+  function getIndentLevel(line: string): number {
+    const match = line.match(/^(\s*)/);
+    return match ? match[1].length : 0;
+  }
+  
+  function closeListsToLevel(targetLevel: number) {
+    // If we have an open <li> at a level >= targetLevel, close it first
+    if (openLiTag !== null && openLiTag >= targetLevel) {
+      processedLines.push('</li>');
+      openLiTag = null;
+    }
+    
+    while (listStack.length > 0 && listStack[listStack.length - 1].level >= targetLevel) {
+      const state = listStack.pop()!;
+      if (state.type === 'ul') {
+        processedLines.push('</ul>');
+      } else if (state.type === 'ol') {
+        processedLines.push('</ol>');
+      }
+    }
+  }
+  
+  function isListItem(line: string): boolean {
+    const trimmed = line.trim();
+    return /^[-*+]\s+/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
+  }
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
+    const indentLevel = getIndentLevel(line);
+    const nextLine = i + 1 < lines.length ? lines[i + 1] : null;
+    const nextIndentLevel = nextLine ? getIndentLevel(nextLine) : -1;
+    const nextIsListItem = nextLine ? isListItem(nextLine) : false;
+    const hasNestedContent = nextIsListItem && nextIndentLevel > indentLevel;
     
-    // Check for unordered list item
+    if (!trimmed) {
+      // Empty line - close open <li> and all lists
+      if (openLiTag !== null) {
+        processedLines.push('</li>');
+        openLiTag = null;
+      }
+      closeListsToLevel(0);
+      processedLines.push('');
+      continue;
+    }
+    
+    // Check for unordered list item (with indentation support)
     const unorderedMatch = trimmed.match(/^[-*+]\s+(.+)$/);
     if (unorderedMatch) {
-      if (!inUnorderedList) {
-        if (inOrderedList) {
-          processedLines.push('</ol>');
-          inOrderedList = false;
-        }
+      // Close any open <li> at this or deeper level
+      if (openLiTag !== null && openLiTag >= indentLevel) {
+        processedLines.push('</li>');
+        openLiTag = null;
+      }
+      
+      // Find the appropriate level in the stack
+      const currentState = listStack.length > 0 ? listStack[listStack.length - 1] : null;
+      
+      // If we need to start a new list or change list type at this level
+      if (!currentState || currentState.level !== indentLevel || currentState.type !== 'ul') {
+        // Close lists deeper than this level, but keep lists at shallower levels open
+        closeListsToLevel(indentLevel);
+        // Start new unordered list
+        listStack.push({ type: 'ul', level: indentLevel });
         processedLines.push('<ul>');
-        inUnorderedList = true;
       }
-      processedLines.push(`<li>${unorderedMatch[1]}</li>`);
+      
+      // Open <li> tag - close it only if there's no nested content
+      if (hasNestedContent) {
+        processedLines.push(`<li>${unorderedMatch[1]}`);
+        openLiTag = indentLevel;
+      } else {
+        processedLines.push(`<li>${unorderedMatch[1]}</li>`);
+      }
       continue;
     }
     
-    // Check for ordered list item
-    const orderedMatch = trimmed.match(/^\d+\.\s+(.+)$/);
+    // Check for ordered list item (with indentation support)
+    const orderedMatch = trimmed.match(/^(\d+)\.\s+(.+)$/);
     if (orderedMatch) {
-      if (!inOrderedList) {
-        if (inUnorderedList) {
-          processedLines.push('</ul>');
-          inUnorderedList = false;
-        }
-        processedLines.push('<ol>');
-        inOrderedList = true;
+      const listNumber = orderedMatch[1];
+      const content = orderedMatch[2];
+      
+      // Close any open <li> at this or deeper level
+      if (openLiTag !== null && openLiTag >= indentLevel) {
+        processedLines.push('</li>');
+        openLiTag = null;
       }
-      processedLines.push(`<li>${orderedMatch[1]}</li>`);
+      
+      // Find the appropriate level in the stack
+      const currentState = listStack.length > 0 ? listStack[listStack.length - 1] : null;
+      
+      // If we need to start a new list or change list type at this level
+      if (!currentState || currentState.level !== indentLevel || currentState.type !== 'ol') {
+        // Close lists deeper than this level, but keep lists at shallower levels open
+        closeListsToLevel(indentLevel);
+        // Start new ordered list
+        listStack.push({ type: 'ol', level: indentLevel });
+        processedLines.push('<ol>');
+      }
+      
+      // Preserve the original numbering by using the value attribute
+      // Open <li> tag - close it only if there's no nested content
+      if (hasNestedContent) {
+        processedLines.push(`<li value="${listNumber}">${content}`);
+        openLiTag = indentLevel;
+      } else {
+        processedLines.push(`<li value="${listNumber}">${content}</li>`);
+      }
       continue;
     }
     
-    // Not a list item - close any open lists
-    if (inUnorderedList) {
-      processedLines.push('</ul>');
-      inUnorderedList = false;
+    // Not a list item - close open <li> and all lists
+    if (openLiTag !== null) {
+      processedLines.push('</li>');
+      openLiTag = null;
     }
-    if (inOrderedList) {
-      processedLines.push('</ol>');
-      inOrderedList = false;
-    }
-    
+    closeListsToLevel(0);
     processedLines.push(line);
   }
   
-  // Close any remaining open lists
-  if (inUnorderedList) {
-    processedLines.push('</ul>');
+  // Close any remaining open <li> and lists
+  if (openLiTag !== null) {
+    processedLines.push('</li>');
   }
-  if (inOrderedList) {
-    processedLines.push('</ol>');
-  }
+  closeListsToLevel(0);
   
   html = processedLines.join('\n');
   
@@ -245,5 +330,37 @@ function markdownToHTML(markdown: string): string {
   html = html.replace(/<p>(<img[^>]*>)<\/p>/g, '$1');
   
   return html;
+}
+
+// Extract H2 headings from markdown content
+export function extractH2Headings(markdown: string): Heading[] {
+  const headings: Heading[] = [];
+  const lines = markdown.split('\n');
+  
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Match H2 headings (## heading)
+    const h2Match = trimmed.match(/^##\s+(.+)$/);
+    if (h2Match) {
+      const text = h2Match[1]
+        .replace(/\*\*/g, '') // Remove bold markers
+        .trim();
+      
+      // Generate ID using the same logic as markdownToHTML
+      const id = text
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\u4e00-\u9fff-]/g, '')
+        .replace(/[？?！!。，,]/g, '');
+      
+      headings.push({
+        id,
+        text,
+        level: 2
+      });
+    }
+  }
+  
+  return headings;
 }
 

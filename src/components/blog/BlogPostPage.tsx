@@ -9,6 +9,14 @@ import { getBlogPostById, getAllBlogPosts, getMarkdownContent } from '../../util
 import { parseMarkdown } from '../../utils/markdownParser';
 import { useIsMobile } from '../ui/use-mobile';
 import { removeBasePath } from '../../utils/routing';
+import invitLogo from '../../assets/INVITI_Logo.webp';
+import blog1 from '../../assets/Blog/img/blog1.jpeg.webp';
+import blog2 from '../../assets/Blog/img/blog2.jpeg.webp';
+import blog3 from '../../assets/Blog/img/blog3.jpeg.webp';
+import blog4 from '../../assets/Blog/img/blog4.jpeg.webp';
+import blog5 from '../../assets/Blog/img/blog5.jpeg.webp';
+import blog6 from '../../assets/Blog/img/blog6.jpeg.webp';
+import blog7 from '../../assets/Blog/img/blog7.jpeg.webp';
 
 interface BlogPostPageProps {
   locale?: Locale;
@@ -110,6 +118,9 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
     }
   }, [postId]);
 
+  // Blog images array - mapped by sequence
+  const blogImages = [blog1, blog2, blog3, blog4, blog5, blog6, blog7];
+
   // Map category names from CSV to translation keys
   const categoryMap: Record<string, string> = {
     '產品更新': t.blogPage.productUpdates,
@@ -129,14 +140,11 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
     if (!markdownContent) return null;
 
     const parsed = parseMarkdown(markdownContent);
-    
-    // Default hero image
-    const heroImages = [
-      'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200',
-      'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200',
-      'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200',
-    ];
-    const heroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
+
+    // Find the index of this post in all posts to get the corresponding image
+    const allPosts = getAllBlogPosts();
+    const postIndex = allPosts.findIndex(p => p.id === postId);
+    const heroImage = postIndex >= 0 ? (blogImages[postIndex] || '') : '';
 
     return {
       id: metadata.id,
@@ -147,12 +155,12 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
       author: {
         name: metadata.author || 'INVITI 團隊',
         role: '產品與營運',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100'
+        avatar: invitLogo
       },
       heroImage,
       content: parsed.content
     };
-  }, [postId, t, categoryMap]);
+  }, [postId, t, categoryMap, blogImages]);
 
   // Get previous and next posts
   const { prevPost, nextPost } = useMemo(() => {
@@ -239,20 +247,22 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
             {/* Author Row */}
             <div className={`flex items-center gap-3 mb-6 pb-6 ${isMobile ? '' : 'my-8'}`}>
               <div 
-                className="rounded-full overflow-hidden flex-shrink-0 bg-gray-100"
+                className="rounded-full overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center"
                 style={{
                   width: isMobile ? '40px' : '48px',
                   height: isMobile ? '40px' : '48px',
                   minWidth: isMobile ? '40px' : '48px',
                   minHeight: isMobile ? '40px' : '48px',
-                  backgroundImage: `url(${post.author.avatar})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat'
+                  padding: isMobile ? '6px' : '8px'
                 }}
-                role="img"
-                aria-label={post.author.name}
-              />
+              >
+                <ImageWithFallback
+                  src={post.author.avatar}
+                  alt={post.author.name}
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                />
+              </div>
               <div>
                 <div className={`text-gray-900 ${isMobile ? 'text-xs' : 'text-sm'}`}>{post.author.name}</div>
                 <div className={`text-gray-500 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>{post.author.role}</div>
@@ -260,15 +270,18 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
             </div>
 
             {/* Hero Image */}
-            <div className={`overflow-hidden ${isMobile ? 'mb-6 -mx-4' : 'mb-8'}`} style={{ borderRadius: isMobile ? '0' : '8px' }}>
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                <ImageWithFallback
-                  src={post.heroImage}
-                  alt={post.title}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
+            {post.heroImage && (
+              <div className={`overflow-hidden ${isMobile ? 'mb-6 -mx-4' : 'mb-8'}`} style={{ borderRadius: isMobile ? '0' : '8px' }}>
+                <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                  <ImageWithFallback
+                    src={post.heroImage}
+                    alt={post.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Content */}
             <div 

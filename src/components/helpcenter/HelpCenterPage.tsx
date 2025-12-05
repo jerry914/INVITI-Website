@@ -170,7 +170,7 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({
       />
 
       {/* Header Section - with top padding for fixed NavStack */}
-      <div className={`border-b border-gray-100 bg-white ${isMobile ? 'pt-12' : 'px-6 py-12 pt-[112px]'}`}>
+      <div className={`bg-white ${isMobile ? 'pt-12 pb-6' : 'px-6 py-6 pt-[112px]'}`}>
         <div className={`max-w-[1120px] mx-auto ${isMobile ? 'px-6' : ''}`}>
           <h1 className={`mb-6 text-gray-900 ${isMobile ? 'text-2xl' : 'text-3xl'}`}>
             {t.helpCenterPage.title}
@@ -186,13 +186,11 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({
               onChange={handleSearch}
             />
           </div>
-
-          {/* Tag Chips - Removed per user request */}
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className={isMobile ? 'pb-8' : 'px-6 py-12'}>
+      <div className={isMobile ? 'pb-8' : 'px-6 pt-2 pb-5'}>
         <div className="max-w-[1120px] mx-auto">
           <div className={isMobile ? 'flex flex-col' : 'flex gap-12'}>
             {/* Desktop Sidebar */}

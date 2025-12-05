@@ -93,6 +93,30 @@ export const TermsPage: React.FC<TermsPageProps> = ({
             line-height: 1.6;
             display: list-item;
           }
+          /* Nested lists - preserve indentation */
+          .terms-content ol ul,
+          .terms-content ul ul,
+          .terms-content ol ol,
+          .terms-content ul ol {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+          }
+          .terms-content ol ul {
+            list-style: none;
+            padding-left: 0;
+          }
+          .terms-content ol ul li {
+            position: relative;
+            padding-left: 1.5rem;
+          }
+          .terms-content ol ul li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #1f1f1f;
+            font-weight: normal;
+          }
           .terms-content blockquote {
             margin: 2rem 0;
             padding: 1.25rem 1.5rem;

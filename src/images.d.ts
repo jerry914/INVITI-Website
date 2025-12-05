@@ -8,5 +8,15 @@ declare module '*.png.webp' {
   export default src;
 }
 
+declare module '*.jpeg.webp' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.gif' {
+  const src: string;
+  export default src;
+}
+
 
 
