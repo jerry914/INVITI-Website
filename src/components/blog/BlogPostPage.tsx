@@ -200,7 +200,7 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#FFFCEB' }}>
       {/* Navigation Stack */}
       <NavStack
         locale={locale} 
@@ -232,7 +232,15 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
           <div className={`${isMobile ? 'px-4' : 'max-w-[800px] mx-auto px-6'}`}>
             {/* Meta Row */}
             <div className={`flex items-center gap-2 text-xs text-gray-500 mb-3 ${isMobile ? 'flex-wrap' : ''}`}>
-              <span className="px-2 py-1 bg-gray-50 border border-gray-200" style={{ borderRadius: '4px' }}>
+              <span 
+                className="px-2 py-1 border" 
+                style={{ 
+                  borderRadius: '4px',
+                  backgroundColor: '#2D3508',
+                  borderColor: 'rgba(45, 53, 8, 0.2)',
+                  color: '#FFFCEB'
+                }}
+              >
                 {post.category}
               </span>
               <span>•</span>
@@ -247,13 +255,14 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
             {/* Author Row */}
             <div className={`flex items-center gap-3 mb-6 pb-6 ${isMobile ? '' : 'my-8'}`}>
               <div 
-                className="rounded-full overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center"
+                className="rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center"
                 style={{
                   width: isMobile ? '40px' : '48px',
                   height: isMobile ? '40px' : '48px',
                   minWidth: isMobile ? '40px' : '48px',
                   minHeight: isMobile ? '40px' : '48px',
-                  padding: isMobile ? '6px' : '8px'
+                  padding: isMobile ? '6px' : '8px',
+                  backgroundColor: '#FFFCEB'
                 }}
               >
                 <ImageWithFallback

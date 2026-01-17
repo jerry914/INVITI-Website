@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronDown } from 'lucide-react';
 import { WireframeButton } from './WireframeButton';
 import { Locale, getTranslations } from '../../locales/translations';
 
@@ -13,8 +14,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isMobile = false, loca
   const [titleFirstLine, ...titleRestParts] = t.hero.title.split('，');
   const titleSecondLine = titleRestParts.join('，');
   
+  const handleScrollDown = () => {
+    const featuresSection = document.getElementById('features');
+    if (featuresSection) {
+      const navHeight = 64;
+      const elementPosition = featuresSection.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+  
   return (
-    <section id="home" className="bg-background section-padding">
+    <section id="home" className="bg-background section-padding position-relative">
       <div className="container">
         <div className="row justify-content-center text-center">
           <div className="col-12 col-lg-8">
@@ -45,6 +59,28 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isMobile = false, loca
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Scroll Down Arrow */}
+      <div 
+        className="position-absolute bottom-0 start-50 translate-middle-x mb-4"
+        style={{ cursor: 'pointer' }}
+        onClick={handleScrollDown}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleScrollDown();
+          }
+        }}
+        tabIndex={0}
+        role="button"
+        aria-label="Scroll down"
+      >
+        <ChevronDown 
+          size={32} 
+          className="scroll-down-arrow"
+          style={{ color: '#2D3508', opacity: 0.6 }}
+        />
       </div>
     </section>
   );

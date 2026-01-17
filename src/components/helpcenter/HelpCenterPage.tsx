@@ -157,7 +157,7 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: '#FFFCEB' }}>
       {/* Global Navigation Stack (Fixed) */}
       <NavStack
         isMobile={isMobile}
@@ -170,9 +170,12 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({
       />
 
       {/* Header Section - with top padding for fixed NavStack */}
-      <div className={`bg-white ${isMobile ? 'pt-12 pb-6' : 'px-6 py-6 pt-[112px]'}`}>
+      <div 
+        className={`${isMobile ? 'pt-12 pb-6' : 'px-6 py-6 pt-[112px]'}`}
+        style={{ backgroundColor: '#2D3508' }}
+      >
         <div className={`max-w-[1120px] mx-auto ${isMobile ? 'px-6' : ''}`}>
-          <h1 className={`mb-6 text-gray-900 ${isMobile ? 'text-2xl' : 'text-3xl'}`}>
+          <h1 className={`mb-6 ${isMobile ? 'text-2xl' : 'text-3xl'}`} style={{ color: '#FFFCEB' }}>
             {t.helpCenterPage.title}
           </h1>
           

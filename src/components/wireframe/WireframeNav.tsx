@@ -126,9 +126,23 @@ export const WireframeNav: React.FC<WireframeNavProps> = ({
                     <button
                       key={item.label}
                       onClick={item.action}
-                      className="btn btn-link text-dark text-decoration-none px-0"
+                      className="btn btn-link text-dark text-decoration-none px-0 position-relative nav-link-button"
+                      style={{ 
+                        paddingBottom: '4px',
+                        transition: 'color 0.2s ease'
+                      }}
                     >
                       {item.label}
+                      <span 
+                        className="position-absolute bottom-0 left-0 nav-link-underline"
+                        style={{
+                          height: '2px',
+                          width: '0%',
+                          backgroundColor: '#2D3508',
+                          transition: 'width 0.3s ease',
+                          borderRadius: '1px'
+                        }}
+                      />
                     </button>
                   ) : (
                     <a 

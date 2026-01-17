@@ -165,12 +165,30 @@ export const BlogPage: React.FC<BlogPageProps> = ({
               setIsSidebarOpen(false);
             }
           }}
-          className={`w-full text-left px-3 py-2 text-sm transition-colors leading-[140%] ${
-            activeCategory === category.id
-              ? 'bg-gray-100 text-gray-900 font-medium'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-          }`}
-          style={{ borderRadius: '4px' }}
+          className={`w-full text-left px-3 py-2 text-sm transition-colors leading-[140%]`}
+          style={{ 
+            borderRadius: '4px',
+            backgroundColor: activeCategory === category.id 
+              ? 'rgba(255, 252, 235, 0.15)' 
+              : 'transparent',
+            color: activeCategory === category.id 
+              ? '#FFFCEB' 
+              : '#FFFCEB',
+            opacity: activeCategory === category.id ? 1 : 0.8,
+            fontWeight: activeCategory === category.id ? 500 : 400
+          }}
+          onMouseEnter={(e) => {
+            if (activeCategory !== category.id) {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 252, 235, 0.1)';
+              e.currentTarget.style.opacity = '1';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeCategory !== category.id) {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.opacity = '0.8';
+            }
+          }}
         >
           {category.label}
         </button>
@@ -179,7 +197,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#FFFCEB' }}>
       {/* Navigation Stack */}
       <NavStack
         locale={locale} 
@@ -194,12 +212,24 @@ export const BlogPage: React.FC<BlogPageProps> = ({
       {/* Main Content */}
       <main className={isMobile ? 'flex-1' : 'flex-1'}>
         {/* Hero Section */}
-        <div className={`border-b border-gray-200 bg-gray-50 ${isMobile ? 'pt-12 pb-6 px-4' : 'py-12'}`}>
+        <div 
+          className={`border-b ${isMobile ? 'pt-12 pb-6 px-4' : 'py-12'}`}
+          style={{ 
+            backgroundColor: '#2D3508',
+            borderBottomColor: 'rgba(255, 252, 235, 0.15)'
+          }}
+        >
           <div className={`${isMobile ? '' : 'max-w-[1120px] mx-auto px-6'}`}>
-            <h1 className={`mb-2 ${isMobile ? 'text-left text-2xl' : 'text-center'}`}>
+            <h1 
+              className={`mb-2 ${isMobile ? 'text-left text-2xl' : 'text-center'}`}
+              style={{ color: '#FFFCEB' }}
+            >
               {t.blogPage.title}
             </h1>
-            <p className={`text-gray-600 leading-[150%] ${isMobile ? 'text-left text-sm' : 'text-center'}`}>
+            <p 
+              className={`leading-[150%] ${isMobile ? 'text-left text-sm' : 'text-center'}`}
+              style={{ color: '#FFFCEB', opacity: 0.9 }}
+            >
               {t.blogPage.subtitle}
             </p>
           </div>
@@ -214,18 +244,33 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                 {/* Collapsible Sidebar */}
                 <div className="px-4 mb-4">
                   <Collapsible open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full p-3 border border-gray-200 bg-white rounded-md" style={{ borderRadius: '8px' }}>
-                      <span className="text-sm font-medium text-gray-900">
+                    <CollapsibleTrigger 
+                      className="flex items-center justify-between w-full p-3 border rounded-md" 
+                      style={{ 
+                        borderRadius: '8px',
+                        backgroundColor: '#2D3508',
+                        borderColor: 'rgba(255, 252, 235, 0.15)',
+                        color: '#FFFCEB'
+                      }}
+                    >
+                      <span className="text-sm font-medium" style={{ color: '#FFFCEB' }}>
                         {categories.find(c => c.id === activeCategory)?.label}
                       </span>
                       <ChevronDown
                         size={16}
-                        className={`text-gray-400 transition-transform ${
+                        className={`transition-transform ${
                           isSidebarOpen ? 'rotate-180' : ''
                         }`}
+                        style={{ color: '#FFFCEB', opacity: 0.8 }}
                       />
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="mt-2 p-3 border border-gray-200 bg-white rounded-md">
+                    <CollapsibleContent 
+                      className="mt-2 p-3 border rounded-md"
+                      style={{
+                        backgroundColor: '#2D3508',
+                        borderColor: 'rgba(255, 252, 235, 0.15)'
+                      }}
+                    >
                       <SidebarContent />
                     </CollapsibleContent>
                   </Collapsible>
