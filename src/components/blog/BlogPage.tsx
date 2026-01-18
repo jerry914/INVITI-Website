@@ -44,6 +44,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({
   
   const [activeCategory, setActiveCategory] = useState('all');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Debug: Log screen size detection (remove in production)
   useEffect(() => {
@@ -153,46 +154,68 @@ export const BlogPage: React.FC<BlogPageProps> = ({
     }
   };
 
+  // Handle category change with fade animation
+  const handleCategoryChange = (categoryId: string) => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setActiveCategory(categoryId);
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 50);
+    }, 150);
+  };
+
   // Sidebar component
-  const SidebarContent = () => (
+  const SidebarContent = ({ isDarkBackground = false }: { isDarkBackground?: boolean }) => (
     <nav className="space-y-1">
-      {categories.map((category) => (
-        <button
-          key={category.id}
-          onClick={() => {
-            setActiveCategory(category.id);
-            if (isMobile) {
-              setIsSidebarOpen(false);
-            }
-          }}
-          className={`w-full text-left px-3 py-2 text-sm transition-colors leading-[140%]`}
-          style={{ 
-            borderRadius: '4px',
-            backgroundColor: activeCategory === category.id 
-              ? 'rgba(255, 252, 235, 0.15)' 
-              : 'transparent',
-            color: activeCategory === category.id 
-              ? '#FFFCEB' 
-              : '#FFFCEB',
-            opacity: activeCategory === category.id ? 1 : 0.8,
-            fontWeight: activeCategory === category.id ? 500 : 400
-          }}
-          onMouseEnter={(e) => {
-            if (activeCategory !== category.id) {
-              e.currentTarget.style.backgroundColor = 'rgba(255, 252, 235, 0.1)';
-              e.currentTarget.style.opacity = '1';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeCategory !== category.id) {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.opacity = '0.8';
-            }
-          }}
-        >
-          {category.label}
-        </button>
-      ))}
+      {categories.map((category) => {
+        // For mobile (dark background), use light text; for desktop (light background), use dark text
+        const defaultTextColor = isDarkBackground ? '#FFFCEB' : '#2D3508';
+        const hoverBgColor = isDarkBackground ? 'rgba(255, 252, 235, 0.1)' : 'rgba(45, 53, 8, 0.1)';
+        
+        return (
+          <button
+            key={category.id}
+            onClick={() => {
+              handleCategoryChange(category.id);
+              if (isMobile) {
+                setIsSidebarOpen(false);
+              }
+            }}
+            className={`w-full text-left px-3 py-2 text-sm transition-all duration-200 leading-[140%]`}
+            style={{ 
+              borderRadius: '4px',
+              backgroundColor: activeCategory === category.id 
+                ? '#2D3508' 
+                : 'transparent',
+              color: activeCategory === category.id 
+                ? '#FFFCEB' 
+                : defaultTextColor,
+              opacity: activeCategory === category.id ? 1 : 1,
+              fontWeight: activeCategory === category.id ? 600 : 400,
+              border: activeCategory === category.id 
+                ? '1px solid #2D3508' 
+                : '1px solid transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (activeCategory !== category.id) {
+                e.currentTarget.style.backgroundColor = hoverBgColor;
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.color = defaultTextColor;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeCategory !== category.id) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.color = defaultTextColor;
+              }
+            }}
+          >
+            {category.label}
+          </button>
+        );
+      })}
     </nav>
   );
 
@@ -213,7 +236,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({
       <main className={isMobile ? 'flex-1' : 'flex-1'}>
         {/* Hero Section */}
         <div 
-          className={`border-b ${isMobile ? 'pt-12 pb-6 px-4' : 'py-12'}`}
+          className={`border-b ${isMobile ? 'pt-12 pb-6 px-4' : 'pt-20 pb-12'}`}
           style={{ 
             backgroundColor: '#2D3508',
             borderBottomColor: 'rgba(255, 252, 235, 0.15)'
@@ -271,13 +294,19 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                         borderColor: 'rgba(255, 252, 235, 0.15)'
                       }}
                     >
-                      <SidebarContent />
+                      <SidebarContent isDarkBackground={true} />
                     </CollapsibleContent>
                   </Collapsible>
                 </div>
 
                 {/* Single Column Feed */}
-                <div className="px-4 space-y-4">
+                <div 
+                  className="px-4 space-y-4 transition-opacity duration-300"
+                  style={{ 
+                    opacity: isTransitioning ? 0.3 : 1,
+                    transition: 'opacity 0.3s ease-in-out'
+                  }}
+                >
                   {blogPosts.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 px-4">
                       <div className={`${isMobile ? 'w-14 h-auto' : 'w-12 h-auto'} mb-3`}>
@@ -312,7 +341,13 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                 </aside>
 
                 {/* Main Feed - Two Columns */}
-                <div className="flex-1">
+                <div 
+                  className="flex-1 transition-opacity duration-300"
+                  style={{ 
+                    opacity: isTransitioning ? 0.3 : 1,
+                    transition: 'opacity 0.3s ease-in-out'
+                  }}
+                >
                   {blogPosts.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-24">
                       <div className="w-12 h-12 mb-6">

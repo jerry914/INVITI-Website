@@ -1597,8 +1597,16 @@
     padding-top: calc(var(--spacing) * 12);
   }
 
+  .pt-20 {
+    padding-top: calc(var(--spacing) * 20);
+  }
+
   .pt-16 {
     padding-top: calc(var(--spacing) * 16);
+  }
+
+  .pt-20 {
+    padding-top: calc(var(--spacing) * 20);
   }
 
   .pt-\[112px\] {
@@ -1637,6 +1645,10 @@
     padding-bottom: calc(var(--spacing) * 8);
   }
 
+  .pb-12 {
+    padding-bottom: calc(var(--spacing) * 12);
+  }
+  
   .pb-16 {
     padding-bottom: calc(var(--spacing) * 16);
   }

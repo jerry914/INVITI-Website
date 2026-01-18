@@ -301,7 +301,13 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
         </article>
 
         {/* Prev/Next Navigation */}
-        <div className={`border-t-2 border-gray-200 bg-gray-50 ${isMobile ? 'py-4 px-4' : 'py-8'}`}>
+        <div 
+          className={`border-t-2 ${isMobile ? 'py-4 px-4' : 'py-8'}`}
+          style={{
+            backgroundColor: '#2D3508',
+            borderTopColor: 'rgba(255, 252, 235, 0.15)'
+          }}
+        >
           <div className={`${isMobile ? '' : 'max-w-[800px] mx-auto px-6'}`}>
             <div className={`flex ${isMobile ? 'flex-col gap-3' : 'justify-between items-center gap-6'}`}>
               {/* Previous Post */}
@@ -316,10 +322,14 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
                   }}
                   className={`flex items-center gap-3 text-left flex-1 group ${isMobile ? 'active:opacity-70' : ''}`}
                 >
-                  <ArrowLeft size={isMobile ? 18 : 20} className="text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
+                  <ArrowLeft 
+                    size={isMobile ? 18 : 20} 
+                    className="transition-colors flex-shrink-0 group-hover:opacity-100" 
+                    style={{ color: 'rgba(255, 252, 235, 0.7)' }} 
+                  />
                   <div className="min-w-0">
-                    <div className={`text-gray-500 mb-1 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>{t.blogPage.previousPost}</div>
-                    <div className={`text-gray-900 group-hover:text-gray-700 transition-colors truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                    <div className={`mb-1 ${isMobile ? 'text-[10px]' : 'text-xs'} transition-colors`} style={{ color: 'rgba(255, 252, 235, 0.7)' }}>{t.blogPage.previousPost}</div>
+                    <div className={`transition-colors truncate ${isMobile ? 'text-xs' : 'text-sm'} group-hover:opacity-90`} style={{ color: '#FFFCEB' }}>
                       {prevPost.title}
                     </div>
                   </div>
@@ -341,12 +351,16 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
                   className={`flex items-center gap-3 text-right flex-1 group justify-end ${isMobile ? 'active:opacity-70' : ''}`}
                 >
                   <div className="min-w-0">
-                    <div className={`text-gray-500 mb-1 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>{t.blogPage.nextPost}</div>
-                    <div className={`text-gray-900 group-hover:text-gray-700 transition-colors truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                    <div className={`mb-1 ${isMobile ? 'text-[10px]' : 'text-xs'} transition-colors`} style={{ color: 'rgba(255, 252, 235, 0.7)' }}>{t.blogPage.nextPost}</div>
+                    <div className={`transition-colors truncate ${isMobile ? 'text-xs' : 'text-sm'} group-hover:opacity-90`} style={{ color: '#FFFCEB' }}>
                       {nextPost.title}
                     </div>
                   </div>
-                  <ArrowRight size={isMobile ? 18 : 20} className="text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
+                  <ArrowRight 
+                    size={isMobile ? 18 : 20} 
+                    className="transition-colors flex-shrink-0 group-hover:opacity-100" 
+                    style={{ color: 'rgba(255, 252, 235, 0.7)' }} 
+                  />
                 </button>
               ) : (
                 <div className="flex-1" />
