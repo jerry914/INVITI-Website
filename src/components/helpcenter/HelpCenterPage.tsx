@@ -171,7 +171,7 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({
 
       {/* Header Section - with top padding for fixed NavStack */}
       <div 
-        className={`${isMobile ? 'pt-12 pb-6' : 'px-6 py-6 pt-[112px]'}`}
+        className={`${isMobile ? 'pt-12 pb-6' : 'px-6 py-6 pt-[112px] pb-12'}`}
         style={{ backgroundColor: '#2D3508' }}
       >
         <div className={`max-w-[1120px] mx-auto ${isMobile ? 'px-6' : ''}`}>
@@ -193,7 +193,7 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({
       </div>
 
       {/* Main Content Area */}
-      <div className={isMobile ? 'pb-8' : 'px-6 pt-2 pb-5'}>
+      <div className={isMobile ? 'pb-8' : 'px-6 pt-12 pb-5'}>
         <div className="max-w-[1120px] mx-auto">
           <div className={isMobile ? 'flex flex-col' : 'flex gap-12'}>
             {/* Desktop Sidebar */}
